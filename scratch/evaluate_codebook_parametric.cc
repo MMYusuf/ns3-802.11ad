@@ -2,6 +2,7 @@
  * Copyright (c) 2015-2019 IMDEA Networks Institute
  * Author: Hany Assasa <hany.assasa@gmail.com>
  */
+
 #include "ns3/applications-module.h"
 #include "ns3/core-module.h"
 #include "ns3/internet-module.h"
@@ -67,7 +68,7 @@ main (int argc, char *argv[])
   double y_pos = 0.0;                           /* The Y position of the DMG STA. */
   bool verbose = false;                         /* Print Logging Information. */
   double simulationTime = 1;                    /* Simulation time in seconds. */
-  bool pcapTracing = true;                      /* PCAP Tracing is enabled or not. */
+  bool pcapTracing = false;                      /* PCAP Tracing is enabled or not. */
 
   /* Command line argument parser setup. */
   CommandLine cmd;
@@ -76,6 +77,7 @@ main (int argc, char *argv[])
   cmd.AddValue ("x_pos", "The X position of the DMG STA", x_pos);
   cmd.AddValue ("y_pos", "The Y position of the DMG STA", y_pos);
   cmd.AddValue ("verbose", "turn on all WifiNetDevice log components", verbose);
+  cmd.AddValue ("simulationTime", "Simulation time in seconds", simulationTime);
   cmd.AddValue ("pcap", "Enable PCAP Tracing", pcapTracing);
   cmd.Parse (argc, argv);
 
@@ -131,7 +133,7 @@ main (int argc, char *argv[])
 
   /* Set Parametric Codebook for the DMG AP */
   wifi.SetCodebook ("ns3::CodebookParametric",
-                    "FileName", StringValue ("ULA_AP_Parametric.txt"));
+                    "FileName", StringValue ("DmgFiles/Codebook/ULA_AP_Parametric_3D.txt"));
 
   /* Create Wifi Network Devices (WifiNetDevice) */
   NetDeviceContainer apDevice;
@@ -142,14 +144,20 @@ main (int argc, char *argv[])
 
   /* Set Parametric Codebook for the DMG STA */
   wifi.SetCodebook ("ns3::CodebookParametric",
-                    "FileName", StringValue ("ULA_STA_Parametric.txt"));
+                    "FileName", StringValue ("DmgFiles/Codebook/ULA_STA_Parametric_3D.txt"));
 
   NetDeviceContainer staDevice;
   staDevice = wifi.Install (wifiPhy, wifiMac, staWifiNode);
 
+  Ptr<WifiNetDevice> apWifiNetDevice = StaticCast<WifiNetDevice> (apDevice.Get (0));
+  Ptr<WifiNetDevice> staWifiNetDevice = StaticCast<WifiNetDevice> (staDevice.Get (0));
+  apWifiMac = StaticCast<DmgApWifiMac> (apWifiNetDevice->GetMac ());
+  staWifiMac = StaticCast<DmgStaWifiMac> (staWifiNetDevice->GetMac ());
   /* Setting mobility model, Initial Position 1 meter apart */
   MobilityHelper mobility;
   Ptr<ListPositionAllocator> positionAlloc = CreateObject<ListPositionAllocator> ();
+  positionAlloc->Add (Vector (0.0, 0.0, 0.0));      
+  positionAlloc->Add (Vector (x_pos, y_pos, 0.0)); 
   mobility.SetPositionAllocator (positionAlloc);
   mobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
   mobility.Install (wifiNodes);
@@ -177,10 +185,6 @@ main (int argc, char *argv[])
     }
 
   /* Connect SLS traces */
-  Ptr<WifiNetDevice> apWifiNetDevice = StaticCast<WifiNetDevice> (apDevice.Get (0));
-  Ptr<WifiNetDevice> staWifiNetDevice = StaticCast<WifiNetDevice> (staDevice.Get (0));
-  apWifiMac = StaticCast<DmgApWifiMac> (apWifiNetDevice->GetMac ());
-  staWifiMac = StaticCast<DmgStaWifiMac> (staWifiNetDevice->GetMac ());
   apWifiMac->TraceConnectWithoutContext ("SLSCompleted", MakeBoundCallback (&SLSCompleted, apWifiMac));
   staWifiMac->TraceConnectWithoutContext ("SLSCompleted", MakeBoundCallback (&SLSCompleted, staWifiMac));
 

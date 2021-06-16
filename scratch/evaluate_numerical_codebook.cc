@@ -122,11 +122,11 @@ main (int argc, char *argv[])
   // The value correspond to DMG MCS-0.
   // The start of a valid DMG control PHY transmission at a receive level greater than the minimum sensitivity
   // for control PHY (–78 dBm) shall cause CCA to indicate busy with a probability > 90% within 3 μs.
-  wifiPhy.Set ("EnergyDetectionThreshold", DoubleValue (-78)); //CCA-SD for 802.11 signals.
+  wifiPhy.Set ("RxSensitivity", DoubleValue (-78)); //CCA-SD for 802.11 signals.
   // The start of a valid DMG SC PHY transmission at a receive level greater than the minimum sensitivity for
   // MCS 1 (–68 dBm) shall cause CCA to indicate busy with a probability > 90% within 1 μs. The receiver shall
   // hold the carrier sense signal busy for any signal 20 dB above the minimum sensitivity for MCS 1.
-  wifiPhy.Set ("CcaMode1Threshold", DoubleValue (-48)); // CCA-ED for non-802.11 signals.
+// wifiPhy.Set ("CcaMode1Threshold", DoubleValue (-48)); // CCA-ED for non-802.11 signals.
   /* Set default algorithm for all nodes to be constant rate */
   wifi.SetRemoteStationManager ("ns3::ConstantRateWifiManager", "ControlMode", StringValue (phyMode),
                                                                 "DataMode", StringValue (phyMode));

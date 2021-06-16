@@ -80,7 +80,7 @@ main (int argc, char *argv[])
   double y_pos = 0.0;                           /* The Y position of the DMG STA. */
   bool verbose = false;                         /* Print Logging Information. */
   double simulationTime = 1;                    /* Simulation time in seconds. */
-  bool pcapTracing = true;                      /* PCAP Tracing is enabled or not. */
+  bool pcapTracing = false;                      /* PCAP Tracing is enabled or not. */
 
   /* Command line argument parser setup. */
   CommandLine cmd;
