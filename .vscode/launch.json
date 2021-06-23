@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             // "preLaunchTask": "waf-build",
-            "program": "${workspaceFolder}/build/scratch/test_1",
+            "program": "${workspaceFolder}/build/scratch/test_2",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

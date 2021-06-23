@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
   WifiPhyStandard wifiStandard = WIFI_PHY_STANDARD_80211ad;
   string wifiModePrefix;
   uint modes = 1;  /* The number of PHY modes we have. */
-  uint maxMcs = 3; //24; /* The maximum MCS index. */
+  uint maxMcs = 10; //24; /* The maximum MCS index. */
   if (standard == "ad")
   {
     wifiStandard = WIFI_PHY_STANDARD_80211ad;
@@ -255,7 +255,7 @@ int main(int argc, char *argv[])
       PopulateArpCache();
 
       /* Install Simple UDP Server on the WiGig PCP/AP */
-      PacketSinkHelper sinkHelper("ns3::UdpSocketFactory", InetSocketAddress(staInterface.GetAddress(0), 9999));
+      PacketSinkHelper sinkHelper("ns3::UdpSocketFactory", InetSocketAddress(Ipv4Address::GetAny(), 9999));
       ApplicationContainer sinkApp = sinkHelper.Install(apWifiNode);
       packetSink = StaticCast<PacketSink>(sinkApp.Get(0));
       sinkApp.Start(Seconds(0.0));

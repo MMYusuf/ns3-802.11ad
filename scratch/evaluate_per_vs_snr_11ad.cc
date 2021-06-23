@@ -66,7 +66,7 @@ void
 MacRxOk (WifiMacType, Mac48Address, double snrValue)
 {
   macRxOk++;
-  std::cout << snr << std::endl;
+  //std::cout << snr << std::endl; ///////////////////////////////////////
   snr += snrValue;
 }
 
@@ -127,7 +127,7 @@ main (int argc, char *argv[])
 
   for (uint mcs = 1; mcs <= 12; mcs++)
     {
-      for (double distance = 27.0; distance <= 27; distance += 0.1)
+      for (double distance = 27.0; distance <= 28; distance += 0.1)
         {
           /* Reset Counters */
           macTxDataFailed = 0;
