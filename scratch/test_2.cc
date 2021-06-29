@@ -31,6 +31,7 @@ using namespace std;
 string applicationType = "bulk";          /* Type of the Tx application */
 uint64_t totalRx = 0;
 double throughput = 0;
+double thr_update = 1;          /* throughput schedule time in seconds*/
 Ptr<PacketSink> packetSink;
 Ptr<OnOffApplication> onoff;
 Ptr<BulkSendApplication> bulk;
@@ -44,7 +45,7 @@ Ptr<WifiRemoteStationManager> apRemoteStationManager, staRemoteStationManager;
 NetDeviceContainer staDevices;
 
 /*** Beamforming TXSS Schedulling ***/
-uint16_t biThreshold = 10;                /* BI Threshold to trigger TXSS TXOP. */
+uint16_t biThreshold = 10;                /* BI Threshold to trigger TXSS TXOP, 10=1s */
 uint16_t biCounter;                       /* Number of beacon intervals that have passed. */
 
 /* Flow monitor */
@@ -55,7 +56,7 @@ uint64_t macTxDataFailed = 0;
 uint64_t transmittedPackets = 0;
 uint64_t droppedPackets = 0;
 uint64_t receivedPackets = 0;
-bool csv = false;                         /* Enable CSV output. */
+bool csv = true;                         /* Enable CSV output. */
 
 /* Tracing */
 Ptr<QdPropagationEngine> qdPropagationEngine; /* Q-D Propagation Engine. */
@@ -63,7 +64,7 @@ Ptr<QdPropagationEngine> qdPropagationEngine; /* Q-D Propagation Engine. */
 void
 CalculateThroughput (void)
 {
-  double thr = CalculateSingleStreamThroughput (packetSink, totalRx, throughput);
+  double thr = 0.1/thr_update * CalculateSingleStreamThroughput (packetSink, totalRx, throughput);
   if (!csv)
     {
       string duration = to_string_with_precision<double> (Simulator::Now ().GetSeconds () - 0.1, 1)
@@ -74,9 +75,10 @@ CalculateThroughput (void)
     }
   else
     {
-      std::cout << to_string_with_precision<double> (Simulator::Now ().GetSeconds (), 1) << "," << thr << std::endl;
+      std::cout << std::setw (12) << to_string_with_precision<double> (Simulator::Now ().GetSeconds (), 1) 
+                << thr << std::endl;
     }
-  Simulator::Schedule (MilliSeconds (1000), &CalculateThroughput);
+  Simulator::Schedule (Seconds (thr_update), &CalculateThroughput);
 }
 
 void
@@ -185,6 +187,7 @@ main (int argc, char *argv[])
 
   /* Command line argument parser setup. */
   CommandLine cmd;
+  cmd.AddValue ("thr_update", "Throughput schedule time in seconds", thr_update);
   cmd.AddValue ("activateApp", "Whether to activate data transmission or not", activateApp);
   cmd.AddValue ("applicationType", "Type of the Tx Application: onoff or bulk", applicationType);
   cmd.AddValue ("packetSize", "Application packet size in bytes", packetSize);
@@ -400,14 +403,14 @@ main (int argc, char *argv[])
       monitor = flowmon.InstallAll ();
 
       /* Print Output */
-      if (!csv)
-        {
+//      if (!csv)
+//        {
           std::cout << std::left << std::setw (12) << "Time [s]"
                     << std::left << std::setw (12) << "Throughput [Mbps]" << std::endl;
-        }
+//        }
 
       /* Schedule Throughput Calulcations */
-      Simulator::Schedule (MilliSeconds (100), &CalculateThroughput);
+      Simulator::Schedule (Seconds (thr_update), &CalculateThroughput);
     }
 
   Simulator::Stop (Seconds (simulationTime + 0.101));
