@@ -214,7 +214,7 @@ main (int argc, char *argv[])
   uint16_t startDistance = 0;                     /* Starting distance in the Trace-File. */
   bool enableMobility = true;                     /* Enable mobility. */
   bool verbose = false;                           /* Print logging information. */
-  double simulationTime = 10;                     /* Simulation time in seconds. */
+  double simulationTime = 30;                     /* Simulation time in seconds. */
   string directory = "";                          /* Path to the directory where to store the results. */
   bool pcapTracing = false;                       /* Fla to indicate if PCAP tracing is enabled or not. */
   string arrayConfig = "28";                      /* Phased antenna array configuration. */
@@ -308,12 +308,12 @@ main (int argc, char *argv[])
                    "Ssid", SsidValue (ssid),
                    "BE_MaxAmpduSize", StringValue (mpduAggSize),
                    "BE_MaxAmsduSize", StringValue (msduAggSize),
-                   "SSSlotsPerABFT", UintegerValue (8), "SSFramesPerSlot", UintegerValue (13),
+                   "SSSlotsPerABFT", UintegerValue (8), "SSFramesPerSlot", UintegerValue (16),
                    "BeaconInterval", TimeValue (MicroSeconds (102400)));
 
   /* Set Parametric Codebook for the DMG AP */
   wifi.SetCodebook ("ns3::CodebookParametric",
-                    "FileName", StringValue ("DmgFiles/Codebook/CODEBOOK_URA_AP_" + arrayConfig + "x.txt"));
+                    "FileName", StringValue ("DmgFiles/Codebook/URA_AP_63.txt"));//"DmgFiles/Codebook/CODEBOOK_URA_AP_" + arrayConfig + "x_AzEl.txt"));
 
   /* Create Wifi Network Devices (WifiNetDevice) */
   NetDeviceContainer apDevice;
@@ -326,7 +326,7 @@ main (int argc, char *argv[])
 
   /* Set Parametric Codebook for the DMG STA */
   wifi.SetCodebook ("ns3::CodebookParametric",
-                    "FileName", StringValue ("DmgFiles/Codebook/CODEBOOK_URA_STA_" + arrayConfig + "x.txt"));
+                    "FileName", StringValue ("DmgFiles/Codebook/URA_STA_63.txt"));//"DmgFiles/Codebook/CODEBOOK_URA_STA_" + arrayConfig + "x_AzEl.txt"));
 
   staDevices = wifi.Install (spectrumWifiPhy, wifiMac, staWifiNode);
 
