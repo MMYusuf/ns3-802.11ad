@@ -174,13 +174,13 @@ main (int argc, char *argv[])
   uint32_t rtsThreshold = 0;                      /* RTS/CTS handshare threshold. */
   string queueSize = "4000p";                     /* Wifi MAC Queue Size. */
   string phyMode = "DMG_MCS9";                   /* Type of the DMG physical layer. */
-  uint16_t startDistance = 0;                     /* Starting distance in the Trace-File. */
   bool enableMobility = true;                     /* Enable mobility. */
   bool verbose = false;                           /* Print logging information. */
   double simulationTime = 2.5;                     /* Simulation time in seconds. */
+  double trace_int = 500;                         /* QD trace time interval in milliseconds*/
   string directory = "";                          /* Path to the directory where to store the results. */
   bool pcapTracing = false;                       /* Flag to indicate if PCAP tracing is enabled or not. */
-  string arrayConfig = "28";                      /* Phased antenna array configuration. */
+  string arrayConfig = "_SWIFT";                      /* Phased antenna array configuration. */
 
   /* Command line argument parser setup. */
   CommandLine cmd;
@@ -199,15 +199,15 @@ main (int argc, char *argv[])
   cmd.AddValue ("rtsThreshold", "The RTS/CTS threshold value", rtsThreshold);
   cmd.AddValue ("queueSize", "The maximum size of the Wifi MAC Queue", queueSize);
   cmd.AddValue ("phyMode", "802.11ad PHY Modse", phyMode);
-  cmd.AddValue ("startDistance", "Starting distance in the trace file [0-260]", startDistance);
   cmd.AddValue ("biThreshold", "BI Threshold to trigger beamforming training", biThreshold);
   cmd.AddValue ("enableMobility", "Whether to enable mobility or simulate static scenario", enableMobility);
   cmd.AddValue ("verbose", "Turn on all WifiNetDevice log components", verbose);
   cmd.AddValue ("simulationTime", "Simulation time in seconds", simulationTime);
+  cmd.AddValue ("trace_int", "QD trace simulation time interval in milliseconds", trace_int);
   cmd.AddValue ("directory", "Path to the directory where we store the results", directory);
   cmd.AddValue ("pcap", "Enable PCAP Tracing", pcapTracing);
   cmd.AddValue ("arrayConfig", "Antenna array configuration", arrayConfig);
-  cmd.AddValue ("csv", "Enable CSV output instead of plain text. This mode will suppress all the messages related statistics and events.", csv);
+  cmd.AddValue ("csv", "Enable CSV output instead of plain text.", csv);
   cmd.Parse (argc, argv);
 
   /* Validate A-MSDU and A-MPDU values */
@@ -243,13 +243,13 @@ main (int argc, char *argv[])
   spectrumChannel->SetPropagationDelayModel (propagationDelayRayTracing);
   if (enableMobility)
     {
-      qdPropagationEngine->SetAttribute ("Interval", TimeValue (MilliSeconds (500)));
+      qdPropagationEngine->SetAttribute ("Interval", TimeValue (MilliSeconds (trace_int)));
     }
 
   /**** Setup physical layer ****/
   SpectrumDmgWifiPhyHelper spectrumWifiPhy = SpectrumDmgWifiPhyHelper::Default ();
   spectrumWifiPhy.SetChannel (spectrumChannel);
-  /* All nodes transmit at 10 dBm == 10 mW, no adaptation */
+  /* All nodes transmit at 39 dBm , no adaptation */
   spectrumWifiPhy.Set ("TxPowerStart", DoubleValue (39.0));
   spectrumWifiPhy.Set ("TxPowerEnd", DoubleValue (39.0));
   spectrumWifiPhy.Set ("TxPowerLevels", UintegerValue (1));
@@ -276,8 +276,6 @@ main (int argc, char *argv[])
                    "BeaconInterval", TimeValue (MicroSeconds (102400)));
 
   /* Set Parametric Codebook for the DMG AP */
-//  wifi.SetCodebook ("ns3::CodebookParametric",
-//                    "FileName", StringValue ("DmgFiles/Codebook/CODEBOOK_URA_AP_" + arrayConfig + "x_AzEl.txt"));
 wifi.SetCodebook ("ns3::CodebookParametric",
                     "FileName", StringValue ("DmgFiles/Codebook/URA_AP_63.txt"));
 
@@ -291,8 +289,6 @@ wifi.SetCodebook ("ns3::CodebookParametric",
                    "BE_MaxAmsduSize", StringValue (msduAggSize));
 
   /* Set Parametric Codebook for the DMG STA */
-//  wifi.SetCodebook ("ns3::CodebookParametric",
-//                    "FileName", StringValue ("DmgFiles/Codebook/CODEBOOK_URA_STA_" + arrayConfig + "x_AzEl.txt"));
 wifi.SetCodebook ("ns3::CodebookParametric",
                     "FileName", StringValue ("DmgFiles/Codebook/URA_STA_63.txt"));
 
