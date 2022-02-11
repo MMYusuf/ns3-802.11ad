@@ -178,6 +178,7 @@ main (int argc, char *argv[])
   bool verbose = false;                           /* Print logging information. */
   double simulationTime = 2.5;                     /* Simulation time in seconds. */
   double trace_int = 500;                         /* QD trace time interval in milliseconds*/
+  double power_dBm = 39.0;                       /* Tx power in dBm */
   string directory = "";                          /* Path to the directory where to store the results. */
   bool pcapTracing = false;                       /* Flag to indicate if PCAP tracing is enabled or not. */
   string arrayConfig = "_SWIFT";                      /* Phased antenna array configuration. */
@@ -200,6 +201,7 @@ main (int argc, char *argv[])
   cmd.AddValue ("queueSize", "The maximum size of the Wifi MAC Queue", queueSize);
   cmd.AddValue ("phyMode", "802.11ad PHY Modse", phyMode);
   cmd.AddValue ("biThreshold", "BI Threshold to trigger beamforming training", biThreshold);
+  cmd.AddValue ("power_dBm", "Tx powr in dBm", power_dBm);
   cmd.AddValue ("enableMobility", "Whether to enable mobility or simulate static scenario", enableMobility);
   cmd.AddValue ("verbose", "Turn on all WifiNetDevice log components", verbose);
   cmd.AddValue ("simulationTime", "Simulation time in seconds", simulationTime);
@@ -250,14 +252,14 @@ main (int argc, char *argv[])
   SpectrumDmgWifiPhyHelper spectrumWifiPhy = SpectrumDmgWifiPhyHelper::Default ();
   spectrumWifiPhy.SetChannel (spectrumChannel);
   /* All nodes transmit at 39 dBm , no adaptation */
-  spectrumWifiPhy.Set ("TxPowerStart", DoubleValue (39.0));
-  spectrumWifiPhy.Set ("TxPowerEnd", DoubleValue (39.0));
+  spectrumWifiPhy.Set ("TxPowerStart", DoubleValue (power_dBm));
+  spectrumWifiPhy.Set ("TxPowerEnd", DoubleValue (power_dBm));
   spectrumWifiPhy.Set ("TxPowerLevels", UintegerValue (1));
   /* Set the operational channel */
   spectrumWifiPhy.Set ("ChannelNumber", UintegerValue (2));
   /* Set default algorithm for all nodes to be constant rate */
   wifi.SetRemoteStationManager ("ns3::ConstantRateWifiManager", "DataMode", StringValue (phyMode));
-  /* Make four nodes and set them up with the phy and the mac */
+  /* Make two nodes and set them up with the phy and the mac */
   NodeContainer wifiNodes;
   wifiNodes.Create (2);
   Ptr<Node> apWifiNode = wifiNodes.Get (0);
@@ -315,7 +317,7 @@ wifi.SetCodebook ("ns3::CodebookParametric",
 
   if (activateApp)
     {
-      /* Install Simple UDP Server on the DMG AP */
+      /* Install Simple Server on the DMG AP */
       PacketSinkHelper sinkHelper (socketType, InetSocketAddress (Ipv4Address::GetAny (), 9999));
       ApplicationContainer sinkApp = sinkHelper.Install (apWifiNode);
       packetSink = StaticCast<PacketSink> (sinkApp.Get (0));
